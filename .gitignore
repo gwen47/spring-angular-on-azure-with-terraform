@@ -1,0 +1,24 @@
+# terraform gitignore
+
+# Fichiers d'état Terraform
+*.tfstate
+*.tfstate.*.backup
+
+# Fichier de configuration de variables, souvent sensible
+# *.tfvars # Est normalement inclus dans le .gitignore, exclus car il s'agit d'un projet démo
+*.tfvars.json
+
+# Dossier local Terraform
+.terraform/
+.terraform.lock.hcl
+
+# Ignorez les fichiers de log
+crash.log
+
+# Ignorez tous les fichiers secrets qui pourraient être générés.
+secrets.tfvars
+
+# Idea
+.idea/
+
+!/spring-angular-on-azure-with-terraform.iml
