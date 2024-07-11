@@ -20,10 +20,10 @@ resource "random_string" "pgs-password" {
 }
 
 resource "random_string" "pgs-db-name" {
-  length    = 10
-  special   = false
-  numeric   = false
-  upper     = false
+  length  = 10
+  special = false
+  numeric = false
+  upper   = false
 }
 
 
@@ -31,9 +31,9 @@ locals {
   dns_label_prefix          = "${var.resource_prefix}-postgresql"
   connection_string         = "jdbc:postgresql://${azurerm_postgresql_flexible_server.azure_three_tier_application.fqdn}:5432/${local.postgresql_db_name}?sslmode=require"
   container_registry_server = "https://${var.container_registry_server}"
-  postgresql_admin_username = var.postgresql_admin_username == "" ? random_string.pgs-username.result :   var.postgresql_admin_username
+  postgresql_admin_username = var.postgresql_admin_username == "" ? random_string.pgs-username.result : var.postgresql_admin_username
   postgresql_admin_password = var.postgresql_admin_password == "" ? random_string.pgs-password.result : var.postgresql_admin_password
-  postgresql_db_name        = var.db_name == "" ? "${random_string.pgs-db-name.result}-azure_three_tier_application-api"  : var.db_name
+  postgresql_db_name        = var.db_name == "" ? "${random_string.pgs-db-name.result}-azure_three_tier_application-api" : var.db_name
 }
 
 # Get the current client configuration
@@ -57,11 +57,11 @@ resource "azurerm_virtual_network" "azure_three_tier_application" {
 # App subnet
 # https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/subnet
 resource "azurerm_subnet" "azure_three_tier_application" {
-  name                                           = "${local.dns_label_prefix}-app-subnet"
-  address_prefixes                               = ["10.0.1.0/24"]
-  virtual_network_name                           = azurerm_virtual_network.azure_three_tier_application.name
-  resource_group_name                            = var.resource_group_name
-  private_endpoint_network_policies             = "Disabled"
+  name                              = "${local.dns_label_prefix}-app-subnet"
+  address_prefixes                  = ["10.0.1.0/24"]
+  virtual_network_name              = azurerm_virtual_network.azure_three_tier_application.name
+  resource_group_name               = var.resource_group_name
+  private_endpoint_network_policies = "Disabled"
   # If enabled, Route table and Network Security Groups should be configured
 
   # Adding the required delegation for Azure App Service
@@ -85,7 +85,7 @@ resource "azurerm_subnet" "private_subnet_azure_three_tier_application" {
   delegation {
     name = "delegation"
     service_delegation {
-      name = "Microsoft.DBforPostgreSQL/flexibleServers"
+      name    = "Microsoft.DBforPostgreSQL/flexibleServers"
       actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
     }
   }
@@ -171,29 +171,29 @@ resource "azurerm_service_plan" "azure_three_tier_application" {
 # App service
 # https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/linux_web_app
 resource "azurerm_linux_web_app" "azure_three_tier_application" {
-  name                = "${var.resource_prefix}-api"
-  resource_group_name = var.resource_group_name
-  location            = var.location
-  service_plan_id = azurerm_service_plan.azure_three_tier_application.id
+  name                          = "${var.resource_prefix}-api"
+  resource_group_name           = var.resource_group_name
+  location                      = var.location
+  service_plan_id               = azurerm_service_plan.azure_three_tier_application.id
   public_network_access_enabled = true
 
   site_config {
 
     application_stack {
-      docker_image_name = var.container_image_name
+      docker_image_name   = var.container_image_name
       docker_registry_url = local.container_registry_server
-   }
+    }
   }
 
   # Environment variables
   # https://learn.microsoft.com/en-us/azure/app-service/configure-common?tabs=portal#configure-app-settings
   app_settings = {
-    "SPRING_PROFILES_ACTIVE"     = "prod,swagger"
+    "SPRING_PROFILES_ACTIVE"            = "prod,swagger"
     WEBSITES_ENABLE_APP_SERVICE_STORAGE = false
     WEBSITE_ENABLE_SYNC_UPDATE_SITE     = "true"
-    SPRING_DATASOURCE_URL                    = "@Microsoft.KeyVault(SecretUri=${var.keyvault_uri}secrets/db-connection-string)"
-    SPRING_DATASOURCE_USERNAME               = "@Microsoft.KeyVault(SecretUri=${var.keyvault_uri}secrets/db-username)@${azurerm_postgresql_flexible_server.azure_three_tier_application.fqdn}"
-    SPRING_DATASOURCE_PASSWORD               = "@Microsoft.KeyVault(SecretUri=${var.keyvault_uri}secrets/db-password)"
+    SPRING_DATASOURCE_URL               = "@Microsoft.KeyVault(SecretUri=${var.keyvault_uri}secrets/db-connection-string)"
+    SPRING_DATASOURCE_USERNAME          = "@Microsoft.KeyVault(SecretUri=${var.keyvault_uri}secrets/db-username)@${azurerm_postgresql_flexible_server.azure_three_tier_application.fqdn}"
+    SPRING_DATASOURCE_PASSWORD          = "@Microsoft.KeyVault(SecretUri=${var.keyvault_uri}secrets/db-password)"
     DB_USERNAME                         = "@Microsoft.KeyVault(SecretUri=${var.keyvault_uri}secrets/db-username)"
     DB_PASSWORD                         = "@Microsoft.KeyVault(SecretUri=${var.keyvault_uri}secrets/db-password)"
     KEY_VAULT_URL                       = var.keyvault_uri

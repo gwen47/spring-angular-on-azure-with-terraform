@@ -24,14 +24,14 @@ variable "container_registry_server" {
 variable "container_registry_username" {
   type        = string
   description = "Container registry username"
-  default = ""
+  default     = ""
 }
 
 variable "container_registry_password" {
   type        = string
   description = "Container registry password"
   sensitive   = true
-  default = ""
+  default     = ""
 }
 
 variable "container_image_name" {
@@ -42,7 +42,7 @@ variable "container_image_name" {
 variable "db_name" {
   type        = string
   description = "name of API related database"
-  default = "springangularjhipster"
+  default     = "springangularjhipster"
 }
 
 variable "postgresql_admin_username" {
